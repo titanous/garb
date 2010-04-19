@@ -19,7 +19,7 @@ module Garb
 
     def send_request
       response = if @session.single_user?
-        single_user_request
+        single_user_request(@session.auth_sub?  ? 'AuthSub' : 'GoogleLogin')
       elsif @session.oauth_user?
         oauth_user_request
       end
@@ -28,11 +28,11 @@ module Garb
       response
     end
 
-    def single_user_request
+    def single_user_request(auth='GoogleLogin')
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-      http.get("#{uri.path}#{query_string}", 'Authorization' => "GoogleLogin auth=#{@session.auth_token}")
+      http.get("#{uri.path}#{query_string}", 'Authorization' => "#{auth} #{auth == 'GoogleLogin' ? 'auth' : 'token'}=#{@session.auth_token}")
     end
 
     def oauth_user_request

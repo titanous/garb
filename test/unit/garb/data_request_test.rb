@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), '..', '..', '/test_helper')
 
 module Garb
   class DataRequestTest < MiniTest::Unit::TestCase
-    
+
     context "An instance of the DataRequest class" do
       setup do
         @session = Session.new
@@ -12,28 +12,28 @@ module Garb
       should "be able to build the query string from parameters" do
         parameters = {'ids' => '12345', 'metrics' => 'country'}
         data_request = DataRequest.new(@session, "", parameters)
-        
+
         query_string = data_request.query_string
-        
+
         assert_match(/^\?/, query_string)
-        
+
         query_string.sub!(/^\?/, '')
-        
+
         assert_equal ["ids=12345", "metrics=country"], query_string.split('&').sort
       end
-      
+
       should "return an empty query string if parameters are empty" do
         data_request = DataRequest.new(@session, "")
         assert_equal "", data_request.query_string
       end
-      
+
       should "be able to build a uri" do
         url        = 'http://example.com'
         expected = URI.parse('http://example.com')
-        
+
         assert_equal expected, DataRequest.new(@session, url).uri
       end
-      
+
       should "be able to send a request for a single user" do
         @session.stubs(:single_user?).returns(true)
         response = mock('Net::HTTPOK') do |m|
@@ -41,7 +41,20 @@ module Garb
         end
 
         data_request = DataRequest.new(@session, 'https://example.com/data', 'key' => 'value')
-        data_request.stubs(:single_user_request).returns(response)
+        data_request.expects(:single_user_request).with('GoogleLogin').returns(response)
+        data_request.send_request
+
+        assert_received(data_request, :single_user_request)
+      end
+
+      should "be able to send a request for an auth_sub" do
+        @session.stubs(:auth_sub?).returns(true)
+        response = mock('Net::HTTPOK') do |m|
+          m.expects(:kind_of?).with(Net::HTTPSuccess).returns(true)
+        end
+
+        data_request = DataRequest.new(@session, 'https://example.com/data', 'key' => 'value')
+        data_request.expects(:single_user_request).with('AuthSub').returns(response)
         data_request.send_request
 
         assert_received(data_request, :single_user_request)

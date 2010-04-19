@@ -2,9 +2,9 @@ require File.join(File.dirname(__FILE__), '..', '..', '/test_helper')
 
 module Garb
   class SessionTest < MiniTest::Unit::TestCase
-    
+
     context "The Session class" do
-      
+
       should "be able retrieve an auth_token for a user" do
         auth_request = mock {|m| m.expects(:auth_token).with({}).returns('toke') }
         AuthenticationRequest.expects(:new).with('email', 'password', {}).returns(auth_request)
@@ -21,10 +21,10 @@ module Garb
         Session.login('email', 'password', opts)
         assert_equal 'toke', Session.auth_token
       end
-      
+
       should "retain the email address for this session" do
         AuthenticationRequest.stubs(:new).returns(stub(:auth_token => 'toke'))
-        
+
         Session.login('email', 'password')
         assert_equal 'email', Session.email
       end
@@ -38,13 +38,20 @@ module Garb
         Session.access_token = 'some_oauth_access_token'
         assert_equal true, Session.oauth_user?
       end
+
+      should "define a AuthSub" do
+        Session.auth_sub('a_token')
+        assert_equal true, Session.auth_sub?
+        assert_equal 'a_token', Session.auth_token
+      end
+
     end
 
     context "A Session" do
       setup do
         @session = Session.new
       end
-      
+
       should "be able retrieve an auth_token for a user" do
         auth_request = mock {|m| m.expects(:auth_token).with({}).returns('toke') }
         AuthenticationRequest.expects(:new).with('email', 'password', {}).returns(auth_request)
@@ -61,10 +68,10 @@ module Garb
         @session.login('email', 'password', opts)
         assert_equal 'toke', @session.auth_token
       end
-      
+
       should "retain the email address for this session" do
         AuthenticationRequest.stubs(:new).returns(stub(:auth_token => 'toke'))
-        
+
         @session.login('email', 'password')
         assert_equal 'email', @session.email
       end

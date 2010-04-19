@@ -17,6 +17,16 @@ module Garb
       def oauth_user?
         !access_token.nil?
       end
+
+      def auth_sub(token)
+        self.auth_token = token
+        @auth_sub = true
+      end
+
+      def auth_sub?
+        @auth_sub
+      end
+
     end
 
     include Methods

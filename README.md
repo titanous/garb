@@ -20,13 +20,18 @@ Basic Usage
 
 Single User Login
 -----------------
-  
+
     > Garb::Session.login(username, password)
-    
+
 OAuth Access Token
 ------------------
 
     > Garb::Session.access_token = access_token # assign from oauth gem
+
+AuthSub Token
+-------------
+
+    > Garb::Session.auth_sub(token) # assign by AuthSub system
 
 Accounts
 --------
@@ -37,9 +42,9 @@ Profiles
 --------
 
     > Garb::Account.first.profiles
-    
+
     > Garb::Profile.first('UA-XXXX-XX')
-    
+
     > Garb::Profile.all
     > profile = Garb::Profile.all.first
 
@@ -143,7 +148,7 @@ Filtering
 
   http://code.google.com/apis/analytics/docs/gdata/gdataReference.html#filtering
 
-  We handle filtering as an array of hashes that you can push into, 
+  We handle filtering as an array of hashes that you can push into,
   which will be joined together (AND'd)
 
   Here is what we can do currently:
@@ -166,9 +171,9 @@ Filtering
     does_not_contain => '!~',
     substring => '=@',
     not_substring => '!@'
-    
+
   Given the previous example one-off report, we can add a line for filter:
-  
+
     report.filters do
       eql(:page_path, '/extend/effectively-using-git-with-subversion/')
     end
