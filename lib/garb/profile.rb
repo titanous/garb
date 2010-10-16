@@ -9,7 +9,8 @@ module Garb
       @session = session
       @title = entry['title']
       @table_id = entry['dxp:tableId']
-      @goals = (entry[Garb.to_ga('goal')] || []).map {|g| Goal.new(g)}
+      goals = entry[Garb.to_ga('goal')]
+      @goals = (goals.is_a?(Array) ? goals : [goals]).map {|g| Goal.new(g)}
 
       Garb.parse_properties(entry).each do |k,v|
         instance_variable_set :"@#{k}", v
