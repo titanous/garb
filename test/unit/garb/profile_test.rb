@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', '..', '/test_helper')
+require 'test_helper'
 
 module Garb
   class ProfileTest < MiniTest::Unit::TestCase
@@ -7,17 +7,12 @@ module Garb
       setup {@session = Session.new}
 
       should "be able to return a list of all profiles" do
-        url = 'https://www.google.com/analytics/feeds/accounts/default'
-
-        xml = read_fixture('profile_feed.xml')
-
-        data_request = stub
-        data_request.stubs(:send_request).returns(stub(:body => xml))
-        DataRequest.stubs(:new).returns(data_request)
+        afr = AccountFeedRequest.new
+        afr.stubs(:parsed_response).returns(Crack::XML.parse(read_fixture('profile_feed.xml')))
+        AccountFeedRequest.stubs(:new).returns(afr)
 
         assert_equal ['12345', '12346'], Profile.all(@session).map(&:id)
-        assert_received(DataRequest, :new) {|e| e.with(@session, url)}
-        assert_received(data_request, :send_request)
+        assert_received(AccountFeedRequest, :new) {|e| e.with(@session)}
       end
 
       should "return the first profile for a given web property id" do
@@ -45,9 +40,12 @@ module Garb
       end
     end
 
-    context "An instance of the Profile class" do
+    context "A Profile" do
       setup do
-        entry = Profile.parse(read_fixture('profile_feed.xml')).first
+        afr = AccountFeedRequest.new
+        afr.stubs(:parsed_response).returns(Crack::XML.parse(read_fixture('profile_feed.xml')))
+
+        entry = afr.entries.first
         @profile = Profile.new(entry, Session)
       end
 
@@ -69,6 +67,10 @@ module Garb
     
       should "have a value for :account_name" do
         assert_equal 'Blog Beta', @profile.account_name
+      end
+
+      should "have goals" do
+        assert_equal 4, @profile.goals.size
       end
     end
   end

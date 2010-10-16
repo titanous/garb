@@ -9,6 +9,8 @@ module Garb
       # to enable profile.exits(options_hash, &block)
       # returns Exits.results(self, options_hash, &block)
       # every class defined which extends Resource will add to the module
+
+      # ActiveSupport::Deprecation.warn
       ProfileReports.add_report_method(base)
     end
 
@@ -40,6 +42,22 @@ module Garb
       @filter_parameters = FilterParameters.new
     end
 
+    def set_segment_id(id)
+      @segment = "gaid::#{id.to_i}"
+    end
+
+    def segment
+      @segment
+    end
+
+    def set_instance_klass(klass)
+      @instance_klass = klass
+    end
+
+    def instance_klass
+      @instance_klass || OpenStruct
+    end
+
     def results(profile, opts = {}, &block)
       @profile = profile.is_a?(Profile) ? profile : Profile.first(profile, opts.fetch(:session, Session))
 
@@ -51,7 +69,7 @@ module Garb
 
         instance_eval(&block) if block_given?
 
-        ReportResponse.new(send_request_for_body).results
+        ReportResponse.new(send_request_for_body, instance_klass).results
       else
         []
       end
@@ -67,13 +85,18 @@ module Garb
         'end-date' => format_time(@end_date)}
     end
 
+    def segment_params
+      segment.nil? ? {} : {'segment' => segment}
+    end
+
     def params
       [
         metrics.to_params,
         dimensions.to_params,
         sort.to_params,
         filters.to_params,
-        page_params
+        page_params,
+        segment_params
       ].inject(default_params) do |p, i|
         p.merge(i)
       end

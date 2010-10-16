@@ -1,18 +1,26 @@
-$:.unshift File.expand_path(File.dirname(__FILE__))
-
 require 'net/http'
 require 'net/https'
 
 require 'cgi'
 require 'ostruct'
 require 'crack'
-require 'active_support'
+
+begin
+  require 'active_support/inflector'
+  require 'active_support/deprecation'
+rescue LoadError
+  require 'active_support'
+end
 
 require 'garb/version'
 require 'garb/authentication_request'
 require 'garb/data_request'
+require 'garb/account_feed_request'
 require 'garb/session'
 require 'garb/profile_reports'
+require 'garb/step'
+require 'garb/destination'
+require 'garb/goal'
 require 'garb/profile'
 require 'garb/account'
 require 'garb/filter_parameters'
@@ -20,6 +28,14 @@ require 'garb/report_parameter'
 require 'garb/report_response'
 require 'garb/resource'
 require 'garb/report'
+
+require 'garb/model'
+
+# management
+require 'garb/management/feed'
+require 'garb/management/account'
+require 'garb/management/web_property'
+require 'garb/management/profile'
 
 require 'support'
 
@@ -39,4 +55,15 @@ module Garb
     thing.to_s.gsub(/^ga\:/, '').underscore
   end
   alias :from_ga :from_google_analytics
+
+  def parse_properties(entry)
+    entry['dxp:property'].inject({}) do |hash, p|
+      hash[Garb.from_ga(p['name'])] = p['value']
+      hash
+    end
+  end
+
+  def parse_link(entry, rel)
+    entry['link'].detect {|link| link["rel"] == rel}['href']
+  end
 end

@@ -1,8 +1,8 @@
-require 'rubygems'
 require 'rake/gempackagetask'
 require 'rake/testtask'
 
-require 'lib/garb/version'
+$:.unshift File.expand_path('../lib', __FILE__)
+require 'garb'
 
 task :default => :test
 
@@ -41,11 +41,12 @@ end
 
 begin
   require 'rcov/rcovtask'
-  
+
   desc "Generate RCov coverage report"
   Rcov::RcovTask.new(:rcov) do |t|
+    t.libs << "test"
     t.test_files = FileList['test/**/*_test.rb']
-    t.rcov_opts << "-x lib/garb.rb -x lib/garb/version.rb"
+    t.rcov_opts << "-x \"test/*,gems/*,/Library/Ruby/*,config/*\" -x lib/garb.rb -x lib/garb/version.rb --rails" 
   end
 rescue LoadError
   nil

@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', '..', '/test_helper')
+require 'test_helper'
 
 module Garb
   class FilterParametersTest < MiniTest::Unit::TestCase
@@ -42,7 +42,7 @@ module Garb
           end
 
           params = ['ga:city%3D%3DNew+York+City', 'ga:state%3D%3DNew+York']
-          assert_equal params, @filter_parameters.to_params['filters'].split(';').sort
+          assert_equal params, @filter_parameters.to_params['filters'].split('%3B').sort
         end
 
         should "properly encode operators" do

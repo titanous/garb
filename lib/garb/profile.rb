@@ -3,15 +3,16 @@ module Garb
 
     include ProfileReports
 
-    attr_reader :session, :table_id, :title, :account_name, :account_id, :web_property_id
+    attr_reader :session, :table_id, :title, :account_name, :account_id, :web_property_id, :goals
 
     def initialize(entry, session)
       @session = session
       @title = entry['title']
       @table_id = entry['dxp:tableId']
+      @goals = (entry[Garb.to_ga('goal')] || []).map {|g| Goal.new(g)}
 
-      entry['dxp:property'].each do |p|
-        instance_variable_set :"@#{Garb.from_ga(p['name'])}", p['value']
+      Garb.parse_properties(entry).each do |k,v|
+        instance_variable_set :"@#{k}", v
       end
     end
 
@@ -20,18 +21,13 @@ module Garb
     end
 
     def self.all(session = Session)
-      url = "https://www.google.com/analytics/feeds/accounts/default"
-      response = DataRequest.new(session, url).send_request
-      parse(response.body).map {|entry| new(entry, session)}
+      ActiveSupport::Deprecation.warn("Garb::Profile.all is deprecated in favor of Garb::Management::Profile.all")
+      AccountFeedRequest.new(session).entries.map {|entry| new(entry, session)}
     end
 
     def self.first(id, session = Session)
+      ActiveSupport::Deprecation.warn("Garb::Profile.first is deprecated in favor of Garb::Management::WebProperty")
       all(session).detect {|profile| profile.id == id || profile.web_property_id == id }
-    end
-
-    def self.parse(response_body)
-      entry_hash = Crack::XML.parse(response_body)
-      entry_hash ? [entry_hash['feed']['entry']].flatten : []
     end
   end
 end

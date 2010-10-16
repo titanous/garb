@@ -2,7 +2,7 @@ module Garb
   module Version
 
     MAJOR = 0
-    MINOR = 7
+    MINOR = 8
     TINY  = 4
 
     def self.to_s # :nodoc:

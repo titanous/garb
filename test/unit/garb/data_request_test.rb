@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', '..', '/test_helper')
+require 'test_helper'
 
 module Garb
   class DataRequestTest < MiniTest::Unit::TestCase
@@ -28,10 +28,8 @@ module Garb
       end
 
       should "be able to build a uri" do
-        url        = 'http://example.com'
-        expected = URI.parse('http://example.com')
-
-        assert_equal expected, DataRequest.new(@session, url).uri
+        url = 'http://example.com'
+        assert_equal URI.parse(url), DataRequest.new(@session, url).uri
       end
 
       should "be able to send a request for a single user" do
@@ -95,7 +93,7 @@ module Garb
         assert_equal 'responseobject', data_request.oauth_user_request
 
         assert_received(@session, :access_token)
-        assert_received(access_token, :get) {|e| e.with('https://example.com/data?key=value')}
+        assert_received(access_token, :get) {|e| e.with('https://example.com/data?key=value', {'GData-Version' => '2'})}
       end
 
       should "be able to request via http with an auth token" do
@@ -105,7 +103,10 @@ module Garb
         http = mock do |m|
           m.expects(:use_ssl=).with(true)
           m.expects(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE)
-          m.expects(:get).with('/data?key=value', 'Authorization' => 'GoogleLogin auth=toke').returns(response)
+          m.expects(:get).with('/data?key=value', {
+            'Authorization' => 'GoogleLogin auth=toke',
+            'GData-Version' => '2'
+          }).returns(response)
         end
 
         Net::HTTP.expects(:new).with('example.com', 443).returns(http)

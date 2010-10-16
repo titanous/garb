@@ -1,12 +1,15 @@
-# A sample Gemfile
-source :gemcutter
-#
-# gem "rails"
+source :rubygems
+source "http://gems.github.com"
 
-gem "crack", ">= 0.1.6"
-gem "activesupport", ">= 2.2.0"
+gem 'activesupport'
+gem 'crack'
+
 group :test do
-  gem "jferris-mocha"
-  gem "tpitale-shoulda"
-  gem "minitest"
+  gem 'shoulda'
+  gem 'minitest', :require => false
+  gem 'jferris-mocha', :require => false
+end
+
+group :demo do
+  gem 'oauth'
 end
