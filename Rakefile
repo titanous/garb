@@ -7,10 +7,9 @@ require 'garb'
 task :default => :test
 
 spec = Gem::Specification.new do |s|
-  s.name              = 'garb'
+  s.name              = 'titanous-garb'
   s.version           = Garb::Version.to_s
   s.has_rdoc          = false
-  s.rubyforge_project = 'viget'
   s.summary           = "Google Analytics API Ruby Wrapper"
   s.authors           = ['Tony Pitale']
   s.email             = 'tony.pitale@viget.com'
